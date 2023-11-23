@@ -499,6 +499,7 @@ const actions = {
     })
   },
 
+  // 这里监听到要关闭了
   LISTEN_FOR_CLOSE ({ state }) {
     ipcRenderer.on('mt::ask-for-close', e => {
       const unsavedFiles = state.tabs
@@ -510,6 +511,7 @@ const actions = {
         })
 
       if (unsavedFiles.length) {
+        // 于是向总线发布关闭消息
         ipcRenderer.send('mt::close-window-confirm', unsavedFiles)
       } else {
         ipcRenderer.send('mt::close-window')

@@ -14,6 +14,7 @@ import pandoc from '../../utils/pandoc'
 // the renderer should communicate only with the editor window for file relevant stuff.
 // E.g. "mt::save-tabs" --> "mt::window-save-tabs$wid:<windowId>"
 
+// 文件导出时的后缀判断
 const getExportExtensionFilter = type => {
   if (type === 'pdf') {
     return [{
@@ -103,6 +104,7 @@ const handleResponseForPrint = e => {
   })
 }
 
+// 处理保存文件的响应
 const handleResponseForSave = async (e, { id, filename, markdown, pathname, options, defaultPath }) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   let recommendFilename = getRecommendTitleFromMarkdownString(markdown)
@@ -118,6 +120,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
   let filePath = pathname
 
   if (!filePath) {
+    // 这里显示保存对话框
     const { filePath: dialogPath, canceled } = await dialog.showSaveDialog(win, {
       defaultPath: path.join(defaultPath || getPath('documents'), `${recommendFilename}.md`)
     })
@@ -135,7 +138,7 @@ const handleResponseForSave = async (e, { id, filename, markdown, pathname, opti
   filePath = path.resolve(filePath)
   const extension = path.extname(filePath) || '.md'
   filePath = !filePath.endsWith(extension) ? filePath += extension : filePath
-  // 这里可以看到该方法返回的是一个Promise
+  // 这里可以看到writeMarkdownFile方法返回的是一个Promise
   return writeMarkdownFile(filePath, markdown, options, win)
     .then(() => {
       if (!alreadyExistOnDisk) {
@@ -280,6 +283,8 @@ ipcMain.on('mt::response-file-save-as', async (e, { id, filename, markdown, path
   }
 })
 
+// 这里应该是关闭窗口时的操作
+// 这里接收到了关闭消息，开始处理
 ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
   const win = BrowserWindow.fromWebContents(e.sender)
   const userResult = await showUnsavedFilesMessage(win, unsavedFiles)
@@ -288,6 +293,8 @@ ipcMain.on('mt::close-window-confirm', async (e, unsavedFiles) => {
   }
 
   const { needSave } = userResult
+
+  // 这里说明是修改过或者新增的文件，但是更改日期不能只在这里修改，因为其他地方保存后这里并不会触发，所以更新修改日期还是得在save那里做，
   if (needSave) {
     Promise.all(unsavedFiles.map(file => handleResponseForSave(e, file)))
       .then(() => {

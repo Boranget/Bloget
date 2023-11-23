@@ -29,6 +29,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 创建一个新的编辑器窗口？不知道是不是tab里的
    * Creates a new editor window.
    *
    * @param {string} [rootDirectory] The root directory to open.
@@ -199,6 +200,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 打开一个新的标签页
    * Open a new tab from a markdown file.
    *
    * @param {string} filePath The markdown file path.
@@ -212,6 +214,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 根据给定的文件路径打开tab
    * Open new tabs from the given file paths.
    *
    * @param {string[]} filePaths The file paths to open.
@@ -225,6 +228,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 打开一份新tab，好像还能批量打开
    * Open new tabs from markdown files with options for editor window.
    *
    * @param {{filePath: string, selected: boolean, options: any}[]} filePath A list of markdown file paths and options to open.
@@ -239,6 +243,7 @@ class EditorWindow extends BaseWindow {
     const { autoGuessEncoding, trimTrailingNewline } = preferences.getAll()
 
     for (const { filePath, options, selected } of fileList) {
+      // 这里会先读md文件
       loadMarkdownFile(filePath, eol, autoGuessEncoding, trimTrailingNewline).then(rawDocument => {
         if (this.lifecycle === WindowLifecycle.READY) {
           this._doOpenTab(rawDocument, options, selected)
@@ -258,6 +263,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 没懂
    * Open a new untitled tab optional with a markdown string.
    *
    * @param {[boolean]} selected Whether the tab should become the selected tab (true if not set).
@@ -276,17 +282,19 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 打开一个新的文件夹替换掉旧的那个
    * Open a (new) directory and replaces the old one.
    *
    * @param {string} pathname The directory path.
    */
   openFolder (pathname) {
+    // 正在退出时不让打开文件夹
     // TODO: Don't allow new files if quitting.
     if (!pathname || this.lifecycle === WindowLifecycle.QUITTED ||
       isSamePathSync(pathname, this._openedRootDirectory)) {
       return
     }
-
+    // 如果窗口状态为ready
     if (this.lifecycle === WindowLifecycle.READY) {
       const { _accessor, browserWindow } = this
       const { menu: appMenu } = _accessor
@@ -305,6 +313,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 新增一个打开的文件？
    * Add a new path to the file list and watch the given path.
    *
    * @param {string} filePath The file path.
@@ -316,6 +325,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 修改文件列表中某个文件的文件路径？
    * Change a path in the opened file list and update the watcher.
    *
    * @param {string} pathname
@@ -335,6 +345,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 从打开的文件列表中移除某个路径并停止监控该路径
    * Remove a path from the opened file list and stop watching the path.
    *
    * @param {string} pathname The full path.
@@ -349,6 +360,7 @@ class EditorWindow extends BaseWindow {
   }
 
   /**
+   * 通过给定文件列表返回分数列表？
    * Returns a score list for a given file list.
    *
    * @param {string[]} fileList The file list.
@@ -376,6 +388,7 @@ class EditorWindow extends BaseWindow {
     return buf
   }
 
+  // 重新加载
   reload () {
     const { id, browserWindow } = this
 
@@ -408,6 +421,7 @@ class EditorWindow extends BaseWindow {
     super.reload()
   }
 
+  // 摧毁
   destroy () {
     super.destroy()
 
@@ -420,6 +434,7 @@ class EditorWindow extends BaseWindow {
     this._openedFiles = null
   }
 
+  // 打开根目录文件夹
   get openedRootDirectory () {
     return this._openedRootDirectory
   }

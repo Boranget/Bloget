@@ -31,6 +31,7 @@ const checkSequence = (buffer, sequence) => {
 }
 
 /**
+ * 猜测文件使用的编码格式
  * Guess the encoding from the buffer.
  *
  * @param {Buffer} buffer
